@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  php:
+    image: php-swoole
+    container_name: php
+    ports:  #端口映射
+      - "9501:9501"
+    working_dir: /www #工作目录
+    restart: always
+    volumes:
+      - /mount/vagrant/code:/www
+    stdin_open: true  #打开标准输入
+    tty: true  #模拟伪终端
+    networks:
+      web-network:
+        ipv4_address: 192.168.2.6   #设置ip地址
+  redis:
+    image: redis
+    container_name: redis
+    networks:
+      web-network:
+        ipv4_address: 192.168.2.2   #设置ip地址
+    stdin_open: true
+    tty: true
+    ports:
+      - "6380:6379"
+    volumes:
+      - /mount/vagrant/etc/redis.conf:/etc/redis.conf
+    command: redis-server /etc/redis.conf
+  db:
+    image: mysql
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: dongjiawei
+#设置网络环境
+networks:
+  web-network:
+    external:
+      name: php-network
